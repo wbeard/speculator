@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { getReadyTasks, importTasks } from '../operations/tasks.js';
 import { resolveFeatureId } from '../operations/features.js';
+import { formatOutput } from '../utils/toon.js';
 
 export function registerTasksCommands(program) {
   const tasks = program.command('tasks').description('Task queries and bulk operations');
@@ -13,9 +14,9 @@ export function registerTasksCommands(program) {
       try {
         const featureId = options.feature ? resolveFeatureId(options.feature) : null;
         const result = getReadyTasks(featureId);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -40,9 +41,9 @@ export function registerTasksCommands(program) {
           throw new Error('Input must be a JSON array of tasks');
         }
         const result = importTasks(featureId, tasksData);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });

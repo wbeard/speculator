@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { listFeatures } from '../operations/features.js';
+import { formatOutput } from '../utils/toon.js';
 
 export function registerFeaturesCommands(program) {
   program
@@ -8,6 +9,6 @@ export function registerFeaturesCommands(program) {
     .option('-s, --status <status>', 'Filter by status (active, completed, archived)')
     .action((options) => {
       const result = listFeatures(options.status);
-      console.log(JSON.stringify(result, null, 2));
+      console.log(formatOutput(result));
     });
 }

@@ -10,6 +10,7 @@ import {
   addDependency,
 } from '../operations/tasks.js';
 import { resolveFeatureId } from '../operations/features.js';
+import { formatOutput } from '../utils/toon.js';
 
 export function registerTaskCommands(program) {
   const task = program.command('task').description('Single task operations');
@@ -30,9 +31,9 @@ export function registerTaskCommands(program) {
           options.description,
           options.parent
         );
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -43,10 +44,10 @@ export function registerTaskCommands(program) {
     .action((id) => {
       const result = getTask(id);
       if (!result) {
-        console.error(JSON.stringify({ error: `Task ${id} not found` }));
+        console.error(`Task ${id} not found`);
         process.exit(1);
       }
-      console.log(JSON.stringify(result, null, 2));
+      console.log(formatOutput(result));
     });
 
   task
@@ -56,9 +57,9 @@ export function registerTaskCommands(program) {
     .action((id, options) => {
       try {
         const result = claimTask(id, options.agent || null);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -69,9 +70,9 @@ export function registerTaskCommands(program) {
     .action((id) => {
       try {
         const result = completeTask(id);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -83,9 +84,9 @@ export function registerTaskCommands(program) {
     .action((id, options) => {
       try {
         const result = blockTask(id, options.reason);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -96,9 +97,9 @@ export function registerTaskCommands(program) {
     .action((id) => {
       try {
         const result = unblockTask(id);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -109,9 +110,9 @@ export function registerTaskCommands(program) {
     .action((id) => {
       try {
         const result = releaseTask(id);
-        console.log(JSON.stringify(result, null, 2));
+        console.log(formatOutput(result));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });
@@ -123,9 +124,9 @@ export function registerTaskCommands(program) {
     .action((id, options) => {
       try {
         addDependency(id, options.on);
-        console.log(JSON.stringify({ success: true, task_id: id, depends_on: options.on }));
+        console.log(formatOutput({ success: true, task_id: id, depends_on: options.on }));
       } catch (error) {
-        console.error(JSON.stringify({ error: error.message }));
+        console.error(error.message);
         process.exit(1);
       }
     });

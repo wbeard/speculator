@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { createFeature, getFeature } from '../operations/features.js';
+import { formatOutput } from '../utils/toon.js';
 
 export function registerFeatureCommands(program) {
   const feature = program.command('feature').description('Single feature operations');
@@ -10,7 +11,7 @@ export function registerFeatureCommands(program) {
     .option('-d, --description <description>', 'Feature description')
     .action((name, options) => {
       const result = createFeature(name, options.description);
-      console.log(JSON.stringify(result, null, 2));
+      console.log(formatOutput(result));
     });
 
   feature
@@ -19,9 +20,9 @@ export function registerFeatureCommands(program) {
     .action((id) => {
       const result = getFeature(id);
       if (!result) {
-        console.error(JSON.stringify({ error: `Feature ${id} not found` }));
+        console.error(`Feature ${id} not found`);
         process.exit(1);
       }
-      console.log(JSON.stringify(result, null, 2));
+      console.log(formatOutput(result));
     });
 }
