@@ -9,8 +9,7 @@ export function registerInitCommands(program) {
   program
     .command('init')
     .description('Initialize Speculator in the current project')
-    .option('--agent <type>', 'Agent type: claude-code or cursor')
-    .option('--rules', 'Install CLAUDE.md (for claude-code) or cursor rule (for cursor)')
+    .option('--agent <type>', 'Agent type: claude-code, cursor, or both')
     .action(async (options) => {
       await runInit(options);
     });
@@ -25,8 +24,8 @@ async function runInit(options) {
   let agent = options.agent;
 
   // Validate agent option if provided
-  if (agent && !['claude-code', 'cursor'].includes(agent)) {
-    console.error(kleur.red(`Error: Invalid agent type "${agent}". Must be "claude-code" or "cursor".`));
+  if (agent && !['claude-code', 'cursor', 'both'].includes(agent)) {
+    console.error(kleur.red(`Error: Invalid agent type "${agent}". Must be "claude-code", "cursor", or "both".`));
     process.exit(1);
   }
 
@@ -38,7 +37,8 @@ async function runInit(options) {
       message: 'Which agent to install for?',
       choices: [
         { title: 'Claude Code', value: 'claude-code' },
-        { title: 'Cursor', value: 'cursor' }
+        { title: 'Cursor', value: 'cursor' },
+        { title: 'Both', value: 'both' }
       ],
       initial: 0
     });
@@ -51,9 +51,8 @@ async function runInit(options) {
     agent = response.agent;
   }
 
-  const installClaude = agent === 'claude-code';
-  const installCursor = agent === 'cursor';
-  const includeRules = options.rules || false;
+  const installClaude = agent === 'claude-code' || agent === 'both';
+  const installCursor = agent === 'cursor' || agent === 'both';
 
   // Always install shared templates
   console.log(kleur.dim('Installing shared templates...'));
@@ -70,26 +69,22 @@ async function runInit(options) {
   if (installCursor) {
     console.log(kleur.dim('Installing Cursor commands...'));
     await installCommands(path.join(cwd, '.cursor', 'commands'), false);
-    if (includeRules) {
-      console.log(kleur.dim('Installing Cursor rule...'));
-      await copyDir(
-        path.join(templatesDir, 'cursor', 'rules'),
-        path.join(cwd, '.cursor', 'rules')
-      );
-    }
+    console.log(kleur.dim('Installing Cursor rule...'));
+    await copyDir(
+      path.join(templatesDir, 'cursor', 'rules'),
+      path.join(cwd, '.cursor', 'rules')
+    );
   }
 
   // Install Claude Code templates
   if (installClaude) {
     console.log(kleur.dim('Installing Claude Code commands...'));
     await installCommands(path.join(cwd, '.claude', 'commands'), true);
-    if (includeRules) {
-      console.log(kleur.dim('Installing CLAUDE.md...'));
-      await copyFile(
-        path.join(templatesDir, 'claude-code', 'CLAUDE.md'),
-        path.join(cwd, 'CLAUDE.md')
-      );
-    }
+    console.log(kleur.dim('Installing CLAUDE.md...'));
+    await copyFile(
+      path.join(templatesDir, 'claude-code', 'CLAUDE.md'),
+      path.join(cwd, 'CLAUDE.md')
+    );
     // Auto-install orchestration skill for Claude Code
     console.log(kleur.dim('Installing multi-agent orchestration skill...'));
     await copyDir(
@@ -99,27 +94,27 @@ async function runInit(options) {
   }
 
   console.log();
-  console.log(kleur.green('Speculator installed!'));
-  console.log();
-  console.log(kleur.bold('Workflow Commands:'));
-  console.log('  /spec.new       - Start a new feature spec');
-  console.log('  /spec.fix       - Create a bug fix from repro steps');
-  console.log('  /spec.next      - Check status and suggest next step');
-  console.log('  /spec.research  - Gather context before planning');
-  console.log('  /spec.plan      - Create implementation plan');
-  console.log('  /spec.tasks     - Break plan into executable tasks');
-  console.log('  /spec.implement - Execute tasks in a loop');
-  console.log('  /spec.clarify   - Update spec and assess impact');
-  if (installClaude) {
+
+  // Agent-specific success message
+  if (agent === 'both') {
+    console.log(kleur.green('Speculator initialized for Claude Code and Cursor!'));
     console.log();
-    console.log(kleur.bold('Multi-Agent Orchestration:'));
-    console.log('  Use the `spec` CLI to manage tasks across multiple agents.');
-    console.log('  Run `spec --help` for available commands.');
+    console.log(`Commands added to ${kleur.cyan('.claude/commands/')} and ${kleur.cyan('.cursor/commands/')}`);
+    console.log(`Skill installed to ${kleur.cyan('.claude/skills/speculator-orchestration/')}`);
+    console.log(`Rule added to ${kleur.cyan('.cursor/rules/speculator.mdc')}`);
+  } else if (agent === 'claude-code') {
+    console.log(kleur.green('Speculator initialized for Claude Code!'));
+    console.log();
+    console.log(`Commands added to ${kleur.cyan('.claude/commands/')}`);
+    console.log(`Skill installed to ${kleur.cyan('.claude/skills/speculator-orchestration/')}`);
+  } else {
+    console.log(kleur.green('Speculator initialized for Cursor!'));
+    console.log();
+    console.log(`Commands added to ${kleur.cyan('.cursor/commands/')}`);
+    console.log(`Rule added to ${kleur.cyan('.cursor/rules/speculator.mdc')}`);
   }
+
   console.log();
-  console.log(kleur.bold('Hooks:'));
-  console.log('  Add custom hooks in .speculator/hooks/{pre|post}-{command}/');
-  console.log();
-  console.log(kleur.dim('Start with /spec.new, or run /spec.next to check your current status.'));
+  console.log(kleur.dim('Get started by running /spec.new in your agent.'));
   console.log();
 }
