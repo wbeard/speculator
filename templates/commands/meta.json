@@ -1,0 +1,11 @@
+{
+  "spec.init": "Initialize Speculator in the current project",
+  "spec.new": "Start a new feature workspace and draft requirements",
+  "spec.fix": "Create a bug fix feature from reproduction steps",
+  "spec.next": "Check feature status and suggest the next step",
+  "spec.research": "Gather context and validate assumptions before planning",
+  "spec.plan": "Create implementation plan bridging current state to requirements",
+  "spec.tasks": "Break the plan into an executable task checklist",
+  "spec.implement": "Execute tasks in a recursive loop",
+  "spec.clarify": "Update the spec when requirements change, assess downstream impact"
+}
